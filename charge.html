@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <title>Solar-Powered Charging Station</title>
+    <style>
+        body{
+           margin: 0;
+           padding: 0;
+           background-color: rgb(255, 255, 255);
+        }
+        .navbar{
+            background-color: rgb(253, 177, 36);
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        }
+        .container{
+            width: 100%;        
+            margin-top: 1rem;
+            margin-left: 2rem;
+            justify-content: center;
+           
+        }
+        #map{
+            width: 100%;
+            height: 450px;
+            border-color: black;
+            border-width: 2rem;
+        }
+        .btn-container{
+          justify-items: auto;
+          margin-top: 4rem;
+          border-radius: 15px;
+          padding: 3rem;
+          background-color: rgb(253, 177, 36);
+        }
+
+        .btn-container h4{
+            margin-bottom: 1.5rem;
+        }
+        .btn-container button{
+           margin-bottom: 1.5rem;
+        }
+
+        .btn-container #btnclear {
+           margin-left: 15rem;
+        }
+        .modal {
+          display: none;
+          position: fixed;
+          z-index: 9999; 
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0, 0, 0, 0.5); 
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 4px;
+            width: 50%;
+            max-width: 500px;
+        }
+
+        .close-btn {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close-btn:hover,
+        .close-btn:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        button {
+            margin-top: 10px;
+        }
+
+        #closeFullStationBtn {
+            display: block;
+            margin-top: 10px;
+        }
+        .btn {
+            background-color: #007bff; 
+            color: white; 
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease; 
+            }
+
+            
+            .btn:hover {
+                background-color: #0056b3; 
+                transform: scale(1.05); 
+            }
+
+            .btn:focus {
+                outline: none;
+                box-shadow: 0 0 5px rgba(0, 123, 255, 0.6);
+            }
+
+           
+            .btn-container {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                margin-top: 4rem;
+            }
+
+            #logContainer {
+                margin-top: 20px;
+                padding: 10px;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                background-color: #f9f9f9;
+            }
+            .card:hover {
+                transform: translateY(-10px);  
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);  
+              }
+    </style>
+</head>
+<nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="index.html">
+            <img src="./image/logo.png" alt="Logo" width="40" height="auto" style="margin-right: 40rem;"> 
+          </a>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="index.html">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="charge.html">Charging area</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="services.html">Our Services</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="contact.html">Contact</a>
+          </li>          
+        </ul>
+      </div>
+    </div>
+  </nav>
+<body>
+  <div class="container text-center">
+    <div class="row">
+      <div class="col">
+        <div class="container">
+          <h2>Charging Station Map</h2>
+          <div id="map"></div>
+        </div>      
+      </div>
+      <div class="col">
+        <div class="btn-container">
+          <button class="btn btn-primary" id="btn">Manolo Fortich Charging Station</button>        
+              <button class="btn btn-primary" id="btn1">Dalirig Charging Station</button>
+                   <button class="btn btn-primary" id="btn2">Alae Charging Station</button>
+                      <div id="logContainer"></div>          
+        </div>
+        <p>Select a destination to occupy a charging station </p>
+      </div>     
+    </div>
+  </div>
+    
+  <!-- Modal for Confirming Area Selection -->
+  <div id="areaModal" class="modal"> 
+    <div class="modal-content">   
+      <span class="close-btn" id="closeModal">&times;</span>
+      <img src="./image/pic10.png" alt="" width="80" style="margin-left: 10rem;">
+      <h3>Do you want to occupy this area?</h3>
+      <p id="modalMessage"></p>
+      <button id="confirmBtn">Yes, occupy this station</button>
+      <button id="cancelBtn">No, cancel</button>
+    </div>
+  </div>
+
+  <!-- Modal for Station Full -->
+  <div id="fullStationModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" id="closeFullStationModal">&times;</span>
+        <h3 id="fullStationMessage"></h3>
+        <button id="closeFullStationBtn">Close</button>
+    </div>
+</div>
+
+<!-- Modal for Collecting User Information (Name, Placard Number, Address, etc.) -->
+<div id="occupationModal" class="modal">
+  <div class="modal-content" style="padding: 3rem; background-color: #fdba2c;">
+    <span class="close-btn" id="closeOccupationModal">&times;</span>
+    <h2>Fill out your details</h2>
+    <form id="occupationForm">
+      <div class="form-group">
+        <label for="name">Name:</label>
+        <input type="text" id="name" class="form-control" required>
+      </div>
+      <div class="form-group">
+        <label for="placardNumber">Placard Number:</label>
+        <input type="text" id="placardNumber" class="form-control" required>
+      </div>
+      <div class="form-group">
+        <label for="homeAddress">Home Address:</label>
+        <input type="text" id="homeAddress" class="form-control" required>
+      </div>
+      <div class="form-group">
+        <label for="phoneNumber">Phone Number:</label>
+        <input type="text" id="phoneNumber" class="form-control" required>
+      </div>
+      <button type="button" class="btn btn-success" id="submitOccupationBtn" style="margin-left: 9rem;">Confirm</button>
+    </form>
+  </div>
+</div>
+
+  <section style="height: 65vh; margin-bottom: 4rem; margin-top: 6rem; padding-left: 4rem;">
+    <div class="container text-center">
+      <div class="row">
+        <div class="col">
+          <div class="card" style="width: 22rem; transition: transform 0.3s ease-in, box-shadow 0.3s ease-in;">
+            <img src="./image/pic11.png" class="card-img-top" alt="...">
+            <div class="card-body">
+              <h5 class="card-title">Manolo Fortich Charging Station</h5>
+              <p class="card-text">The Manolo Solar-Powered Charging Station, offers a reliable way to charge electronic devices using clean, renewable solar energy. Designed for public spaces such as parks, plazas, and city streets, the station serves as both a practical amenity and a step toward greener urban infrastructure. </p>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card" style="width: 22rem; transition: transform 0.3s ease-in, box-shadow 0.3s ease-in;">
+            <img src="./image/pic12.png" class="card-img-top" alt="..." style="height: 10.3rem;">
+            <div class="card-body">
+              <h5 class="card-title">Alae Charging Station</h5>
+              <p class="card-text">The Alae Solar-Powered Charging Station is a forward-thinking, eco-friendly solution designed to provide renewable energy for charging electronic devices in outdoor public spaces.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card" style="width: 22rem; transition: transform 0.3s ease-in, box-shadow 0.3s ease-in;">
+            <img src="./image/pic13.png" class="card-img-top" alt="..." style="height: 10.3rem;">
+            <div class="card-body">
+              <h5 class="card-title">Dalirig Charging Station</h5>
+              <p class="card-text">The Dalirig Solar-Powered Charging Station is a modern, sustainable charging hub designed to meet the growing need for eco-friendly power sources in public spaces. Powered entirely by solar energy, the Dalirig station offers a clean, renewable way for individuals to charge their devices while reducing their environmental impact.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <footer style="height: 10vh; width: 100%; background-color: #fdba2c; padding-top: 1.5rem;">
+    <p class="text-center">&copy; 2024 Solar Charging Stations | All Rights Reserved</p>
+</footer>
+</body>
+<script src="charge.js"></script>
+</html>

@@ -1,0 +1,19 @@
+[
+    {
+        "latitude": 8.371400,
+        "longitude" : 124.855103,
+        "message" : "Manolo Fortich Charging Station"
+    },
+      
+    {
+        "latitude": 8.420810,
+        "longitude" : 124.813377,
+        "message" : "Alae Charging Station"
+    },
+
+    {
+        "latitude": 8.376177,
+        "longitude" : 124.903178,
+        "message" : "Dalirig Charging Station"
+    }
+]
